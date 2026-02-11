@@ -1,7 +1,6 @@
 {
   "name": "dizzybot",
   "version": "1.0.0",
-  "description": "DizzyHub Discord Bot with alt gen and tickets",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,11 +8,10 @@
   "dependencies": {
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "quick.db": "^9.1.7"
+    "quick.db": "^9.1.7",
+    "node-fetch": "^2.7.0"
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "author": "AxiFallstudios",
-  "license": "ISC"
+  }
 }
