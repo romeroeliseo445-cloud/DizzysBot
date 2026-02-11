@@ -19,7 +19,7 @@ const TICKET_CATEGORY_ID = '1470073289106788518'; // Your Tickets category ID
 const PREMIUM_ROLE_ID = '1471183765622493358';    // Your Premium role ID
 
 // NEW: Add your private log channel ID here (right-click channel → Copy ID)
-const LOG_CHANNEL_ID = 'YOUR_LOG_CHANNEL_ID_HERE'; // ← Replace with real ID
+const LOG_CHANNEL_ID = '1471230871100063744'; // ← Replace with real ID
 
 // NEW: 5-second anti-spam cooldown on gen buttons (per user)
 const GEN_BUTTON_COOLDOWN_MS = 5 * 1000; // 5 seconds
@@ -340,3 +340,4 @@ client.on('interactionCreate', async interaction => {
 
 console.log('Token from .env:', process.env.TOKEN || 'MISSING/EMPTY');
 client.login(process.env.TOKEN);
+
