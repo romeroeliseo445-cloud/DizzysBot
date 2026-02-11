@@ -1,7 +1,7 @@
 {
   "name": "dizzyhub-bot",
   "version": "1.0.0",
-  "description": "DizzyHub Discord Bot with alt gen",
+  "description": "DizzyHub Discord Bot",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
