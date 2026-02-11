@@ -67,78 +67,65 @@ client.on('messageCreate', async message => {
     await message.reply({ content: 'Panel sent!', ephemeral: true });
   }
 
-  if (command === 'prices') {
-    // (your existing prices embed - kept as-is, truncated for space)
-    const embed = new EmbedBuilder()
-      .setColor('#FFD700')
-      .setTitle('💰 Prices & Bundles')
-      .setDescription('🏙️ THA BRONX 3 — ACCOUNTS & MEMBERSHIPS
-
+ if (command === 'prices') {
+  const embed = new EmbedBuilder()
+    .setColor('#FFD700')
+    .setTitle('💰 Prices & Bundles')
+    .setDescription(`\
+🏙️ THA BRONX 3 — ACCOUNTS & MEMBERSHIPS
 💠 $5 — BASIC
-• 5 Cars          | $990k Clean | $550k Dirty
+• 5 Cars | $990k Clean | $550k Dirty
 • 1 Watch
 • Full Gun Safe
-
 💠 $10 — PREMIUM
-• 25 Cars         | $990k Clean & Dirty
+• 25 Cars | $990k Clean & Dirty
 • 5 Watches
 • Full Gun Safe + Backpack
-
 💠 $25 — EXOTIC
-• ALL Cars        | $1.6m Clean, Dirty & Bank
+• ALL Cars | $1.6m Clean, Dirty & Bank
 • ALL Watches
 • Full Safe + Backpack + Trunk
 • ALL Clothing
 • Looting Pass
 • Extra Wallet Pass
-
 🔥 PREMIUM MEMBERSHIPS (Dupes or Money)
-
 GUNS:
-• 7 Days     — $5
-• 30 Days    — $10
-• 60 Days    — $15
-• LIFETIME   — $25
-
+• 7 Days — $5
+• 30 Days — $10
+• 60 Days — $15
+• LIFETIME — $25
 MONEY:
-• 7 Days     — $6.50
-• 30 Days    — $7.50
-• 60 Days    — $10.50
-• LIFETIME   — $25
-
+• 7 Days — $6.50
+• 30 Days — $7.50
+• 60 Days — $10.50
+• LIFETIME — $25
 🏙️ PHILLY STREETS 2
-
 💰 MONEY DROPS
 • $1 → $5 MILL
 • $2 → $10 MILL
 • $3 → $15 MILL
 • $4 → $20 MILL
 • $5 → $25 MILL
-
 💠 $5 — BASIC
-• 5 Cars          | $5.5 MILL Clean & Dirty
+• 5 Cars | $5.5 MILL Clean & Dirty
 • 5 Outfits
 • 1 Watch
-
 💠 $10 — PREMIUM
-• 10 Cars         | $15 MILL Clean & Dirty
+• 10 Cars | $15 MILL Clean & Dirty
 • 10 Outfits
 • 5 Watches
-
 💠 $25 — EXOTIC
-• ALL Cars        | MAX Clean & Dirty
+• ALL Cars | MAX Clean & Dirty
 • EVERY Outfit & Watch
 • Double Wallet Pass
 • Looting Pass
-
 🚧 CENTRAL STREETS — COMING SOON 🚧
+📩 DM FOR MORE INFO / ORDERS`)
+    .setFooter({ text: 'Prices subject to change • DM for custom deals' });
 
-📩 DM FOR MORE INFO / ORDERS') // paste your full description
-      .setFooter({ text: 'Prices subject to change • DM for custom deals' });
-
-    await message.channel.send({ embeds: [embed] });
-    await message.reply({ content: 'Prices posted!', ephemeral: true });
-  }
+  await message.channel.send({ embeds: [embed] });
+  await message.reply({ content: 'Prices posted!', ephemeral: true });
+}
 
   if (command === 'executors') {
   const embed = new EmbedBuilder()
@@ -388,3 +375,4 @@ client.on('interactionCreate', async interaction => {
 client.login(process.env.TOKEN).catch(err => {
   console.error('Login failed:', err);
 });
+
