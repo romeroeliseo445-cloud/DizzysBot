@@ -1,24 +1,18 @@
 {
-  "name": "dizzyhub-bot",
+  "name": "dizzybot",
   "version": "1.0.0",
-  "description": "DizzyHub Discord bot",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
-  "author": "Dizzy",
-  "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.17.1",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
     "quick.db": "^9.1.7",
-    "dotenv": "^16.4.5"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.9"
+    "better-sqlite3": "^11.3.0",
+    "node-fetch": "^2.7.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   }
 }
