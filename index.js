@@ -14,11 +14,14 @@ const client = new Client({
 const db = new quickdb.QuickDB();
 
 // CHANGE THESE THREE LINES // ← Your values
-const SELLER_ROLE_ID = '1470072594303549669';     // Your sellers role ID
+const SELLER_ROLE_ID = '1470072594303549669'; // Your sellers role ID
 const TICKET_CATEGORY_ID = '1470073289106788518'; // Your Tickets category ID
-const PREMIUM_ROLE_ID = '1471183765622493358';    // Your Premium role ID
+const PREMIUM_ROLE_ID = '1471183765622493358'; // Your Premium role ID
 
-// NEW: Add your private log channel ID here (right-click channel → Copy ID)
+// NEW: Only you (bot owner) can use !resetcooldown
+const OWNER_ID = '1049050401493753866'; // ← Replace with your Discord User ID (right-click your name → Copy User ID)
+
+// NEW: Private log channel for generation logs (right-click channel → Copy ID)
 const LOG_CHANNEL_ID = '1471230871100063744'; // ← Replace with real ID
 
 // NEW: 5-second anti-spam cooldown on gen buttons (per user)
@@ -169,14 +172,34 @@ client.on('messageCreate', async message => {
     message.reply({ content: 'Full stock list sent to your DMs!', ephemeral: true });
   }
 
-  // ── NEW: Post generator panel (with auto-disable) ──
+  // ── NEW: Reset cooldown for a user (owner only) ──
+  if (message.content.startsWith('!resetcooldown') && message.author.id === OWNER_ID) {
+    const args = message.content.split(' ').slice(1);
+    if (args.length < 2) {
+      return message.reply('Usage: !resetcooldown @user <free|premium|all>');
+    }
+    const user = message.mentions.users.first();
+    if (!user) return message.reply('Mention a valid user.');
+    const type = args[1].toLowerCase();
+    if (!['free', 'premium', 'all'].includes(type)) {
+      return message.reply('Type must be free, premium, or all');
+    }
+    if (type === 'all' || type === 'free') {
+      await db.delete(`cooldown_${user.id}_free`);
+    }
+    if (type === 'all' || type === 'premium') {
+      await db.delete(`cooldown_${user.id}_premium`);
+    }
+    return message.reply(`Cooldown reset for ${user.tag} (${type}).`);
+  }
+
+  // ── Post generator panel (with auto-disable) ──
   if (message.content === '!genpanel') {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can post the generator panel.', ephemeral: true });
     }
     const freeStock = await db.get('stock_free') || [];
     const premiumStock = await db.get('stock_premium') || [];
-
     const embed = new EmbedBuilder()
       .setColor('#00BFFF')
       .setTitle('Alt Generator')
@@ -187,7 +210,6 @@ client.on('messageCreate', async message => {
         'Premium? Buy from a seller / open a ticket!'
       )
       .setFooter({ text: 'Stock managed by DizzyHub' });
-
     const row = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
@@ -203,7 +225,6 @@ client.on('messageCreate', async message => {
           .setEmoji('💎')
           .setDisabled(premiumStock.length === 0)
       );
-
     await message.channel.send({ embeds: [embed], components: [row] });
     await message.reply({ content: 'Generator panel posted!', ephemeral: true });
   }
@@ -264,7 +285,6 @@ client.on('interactionCreate', async interaction => {
   const userId = interaction.user.id;
   let type = null;
   let label = '';
-
   if (interaction.customId === 'free_altgen') {
     type = 'free';
     label = 'Free AltGen';
@@ -282,8 +302,7 @@ client.on('interactionCreate', async interaction => {
 
   if (type) {
     await interaction.deferReply({ ephemeral: true });
-
-    // NEW: Anti-spam cooldown on buttons (5 seconds)
+    // Anti-spam cooldown on buttons (5 seconds)
     const now = Date.now();
     const lastClick = buttonCooldowns.get(userId) || 0;
     if (now - lastClick < GEN_BUTTON_COOLDOWN_MS) {
@@ -321,23 +340,10 @@ client.on('interactionCreate', async interaction => {
     try {
       await interaction.user.send(`**${label}** account:\n\`\`\`\n${account}\n\`\`\``);
 
-      // NEW: Log to private channel
+      // Generation log to private channel
       const logChannel = interaction.guild.channels.cache.get(LOG_CHANNEL_ID);
       if (logChannel) {
         logChannel.send(
           `**${label} generated** by ${interaction.user.tag} (${interaction.user.id})\n` +
           `Time: ${new Date().toLocaleString()}\n` +
-          `Account: \`\`\`${account}\`\`\``
-        ).catch(console.error);
-      }
-
-      await interaction.editReply({ content: '✅ Sent to your DMs! (check spam folder)' });
-    } catch (err) {
-      await interaction.editReply({ content: '❌ Could not DM you — please enable DMs from server members.' });
-    }
-  }
-});
-
-console.log('Token from .env:', process.env.TOKEN || 'MISSING/EMPTY');
-client.login(process.env.TOKEN);
-
+          `Account:
