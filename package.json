@@ -8,7 +8,8 @@
   "dependencies": {
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "quick.db": "^8.0.0"
+    "quick.db": "^9.1.7",
+    "better-sqlite3": "^11.3.0"   // Explicitly add this for native compile
   },
   "engines": {
     "node": ">=20.0.0"
