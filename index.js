@@ -118,23 +118,48 @@ MONEY:
   const embed = new EmbedBuilder()
     .setColor('#FF4500')
     .setTitle('🔥 Executors List – Best Tools for Roblox Scripting')
-    .setDescription(
-      '⚠️ **IMPORTANT DISCLAIMER**\n' +
-      'Executors violate Roblox TOS and can lead to account bans, malware, or keyloggers.\n' +
-      'Use at your own risk! Research thoroughly, use antivirus, and never share personal info.\n' +
-      'We are NOT responsible for any issues. Download only from trusted sources.\n\n' +
-      '**PC/WINDOWS**\n\n' +
-      '**Paid**\n' +
-      '• **Potassium** - sUNC 100% / UNC 100% → [Link](https://bloxproducts.com/r/weao#Potassium)\n' +
-      '• **Seliware** - sUNC 100% / UNC 98% → [Link](https://robloxcheatz.com/product?id=51c9587f-4794-46ef-b6bf-2bd9f13c17d2&ref=weao)\n' +
-      '• **Volcano** - sUNC 97% / UNC 98% → [Link](https://gckeys.cc/product?slug=volcano-executor&ref=weao)\n' +
-      '• **Volt** - sUNC 100% / UNC 98% → [Link](https://bloxproducts.com/r/weao#Volt)\n' +
-      '• **Wave** - sUNC 100% / UNC 99% → [Link](https://bloxproducts.com/?affiliate_key=weao#Wave)\n' +
-      '• **Cryptic** - sUNC 94% / UNC 97% → [Link](https://bloxproducts.com/?affiliate_key=weao#Cryptic)\n\n' +
-      '**Free**\n' +
-      '• **Velocity** - sUNC 94% / UNC 99% → [Link](https://realvelocity.xyz/)\n' +
-      '• **Xeno** - sUNC 27% / UNC 82% → [Link](https://www.xeno.onl/)\n\n' +
-      '**iOS/ANDROID**\n\n' +
-      '**Free**\n' +
-      '• **Delta** - sUNC 100% / UNC 99% → [Official Site](https://delta-executor.com/) (or check deltaexploits.gg for updates)\n' +
-      '• **Codex** - sUNC 96% / UNC 98% → [Link](https://robloxcheatz.com/affiliate/weao) or [codex.lol](https://
+    .setDescription(`\
+⚠️ **IMPORTANT DISCLAIMER**
+Executors violate Roblox TOS and can lead to account bans, malware, or keyloggers.
+Use at your own risk! Research thoroughly, use antivirus, and never share personal info.
+We are NOT responsible for any issues. Download only from trusted sources.
+
+**PC/WINDOWS**
+
+**Paid**
+• **Potassium** - sUNC 100% / UNC 100% → [Link](https://bloxproducts.com/r/weao#Potassium)
+• **Seliware** - sUNC 100% / UNC 98% → [Link](https://robloxcheatz.com/product?id=51c9587f-4794-46ef-b6bf-2bd9f13c17d2&ref=weao)
+• **Volcano** - sUNC 97% / UNC 98% → [Link](https://gckeys.cc/product?slug=volcano-executor&ref=weao)
+• **Volt** - sUNC 100% / UNC 98% → [Link](https://bloxproducts.com/r/weao#Volt)
+• **Wave** - sUNC 100% / UNC 99% → [Link](https://bloxproducts.com/?affiliate_key=weao#Wave)
+• **Cryptic** - sUNC 94% / UNC 97% → [Link](https://bloxproducts.com/?affiliate_key=weao#Cryptic)
+
+**Free**
+• **Velocity** - sUNC 94% / UNC 99% → [Link](https://realvelocity.xyz/)
+• **Xeno** - sUNC 27% / UNC 82% → [Link](https://www.xeno.onl/)
+
+**iOS/ANDROID**
+
+**Free**
+• **Delta** - sUNC 100% / UNC 99% → [Official Site](https://delta-executor.com/) (or check deltaexploits.gg for updates)
+• **Codex** - sUNC 96% / UNC 98% → [Link](https://robloxcheatz.com/affiliate/weao) or [codex.lol](https://www.codex.lol/)
+
+**MAC**
+
+**Free**
+• **Hydrogen** - sUNC 90% / UNC 99% → [Link](https://hydrogenmacos.selly.store/)
+
+**Paid**
+• **MacSploit** - sUNC 100% / UNC 99% → [Link](https://bloxproducts.com/?affiliate_key=weao#MacSploit)
+
+I HIGHLY RECOMMEND PAID EXECUTORS FOR BETTER STABILITY & SUPPORT.
+VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
+
+**Follow for updates:** [TikTok](https://www.tiktok.com/@officialplug100?_r=1&_t=ZT-93mkMBzXUZq)
+**Questions?** Contact <@&${SELLER_ROLE_ID}> or DM @Dizzy`)
+    .setFooter({ text: 'Executors stats can change • Always verify links • BE CAREFUL' })
+    .setTimestamp();
+
+  await message.channel.send({ embeds: [embed] });
+  await message.reply({ content: 'Executors list posted!', ephemeral: true });
+}
