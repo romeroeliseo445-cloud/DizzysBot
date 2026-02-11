@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 const quickdb = require('quick.db');
+const fetch = require('node-fetch'); // Added for downloading uploaded files
 
 const client = new Client({
   intents: [
@@ -17,13 +18,6 @@ const db = new quickdb.QuickDB();
 const SELLER_ROLE_ID = '1470072594303549669';     // Your sellers role ID
 const TICKET_CATEGORY_ID = '1470073289106788518'; // Your Tickets category ID
 const PREMIUM_ROLE_ID = '1471183765622493358';    // Your Premium role ID
-
-// NEW: Private log channel for generation logs (right-click channel → Copy ID)
-const LOG_CHANNEL_ID = '1471230871100063744'; // ← Replace with real channel ID
-
-// NEW: 5-second anti-spam cooldown on gen buttons (per user)
-const GEN_BUTTON_COOLDOWN_MS = 5 * 1000; // 5 seconds
-const buttonCooldowns = new Map(); // userID → timestamp
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -128,7 +122,7 @@ client.on('messageCreate', async message => {
     await message.reply({ content: 'Executors list posted!', ephemeral: true });
   }
 
-  // ── Add stock ──
+  // ── Add stock (manual typing) ──
   if (message.content.startsWith('!addstock')) {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can add stock.', ephemeral: true });
@@ -148,35 +142,51 @@ client.on('messageCreate', async message => {
     return message.reply(`Added ${accounts.length} ${type} account(s). Total now: ${current.length}`);
   }
 
-  // ── Check stock counts ──
-  if (message.content === '!stock' && message.member.permissions.has('Administrator')) {
-    const free = await db.get('stock_free') || [];
-    const premium = await db.get('stock_premium') || [];
-    message.reply(`**Current Stock Counts:**\nFree: ${free.length} accounts\nPremium: ${premium.length} accounts`);
+  // ── NEW: Upload stock from .txt file (attach file to message) ──
+  if (message.content.startsWith('!uploadstock')) {
+    if (!message.member.permissions.has('Administrator')) {
+      return message.reply({ content: 'Only admins can upload stock.', ephemeral: true });
+    }
+    const args = message.content.split(' ').slice(1);
+    if (args.length < 1) {
+      return message.reply('Usage: !uploadstock <free|premium> (attach a .txt file)');
+    }
+    const type = args[0].toLowerCase();
+    if (!['free', 'premium'].includes(type)) {
+      return message.reply('Type must be "free" or "premium"');
+    }
+    if (message.attachments.size === 0) {
+      return message.reply('Please attach a .txt file with one account per line.');
+    }
+    const attachment = message.attachments.first();
+    if (!attachment.contentType || !attachment.contentType.startsWith('text/')) {
+      return message.reply('Attached file must be a .txt file.');
+    }
+    try {
+      const response = await fetch(attachment.url);
+      if (!response.ok) throw new Error('Failed to download file');
+      const text = await response.text();
+      const accounts = text.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0 && !line.startsWith('#')); // ignore empty lines & comments
+      if (accounts.length === 0) {
+        return message.reply('File is empty or has no valid accounts.');
+      }
+      let current = await db.get(`stock_${type}`) || [];
+      current.push(...accounts);
+      await db.set(`stock_${type}`, current);
+      return message.reply(`Added **${accounts.length}** ${type} account(s) from file. Total now: ${current.length}`);
+    } catch (err) {
+      console.error('Upload error:', err);
+      return message.reply('Error processing file. Make sure it\'s a valid .txt and try again.');
+    }
   }
 
-  // ── View full stock list (DM to admin) ──
-  if (message.content === '!stocklist' && message.member.permissions.has('Administrator')) {
-    const free = await db.get('stock_free') || [];
-    const premium = await db.get('stock_premium') || [];
-    let reply = `**Full Stock List**\n\n**Free (${free.length}):**\n`;
-    if (free.length > 0) reply += free.join('\n') + '\n\n';
-    else reply += 'Empty\n\n';
-    reply += `**Premium (${premium.length}):**\n`;
-    if (premium.length > 0) reply += premium.join('\n');
-    else reply += 'Empty';
-    message.author.send(reply).catch(() => message.reply('Could not DM you — open DMs.'));
-    message.reply({ content: 'Full stock list sent to your DMs!', ephemeral: true });
-  }
-
-  // ── Post generator panel (with auto-disable) ──
+  // ── Post generator panel ──
   if (message.content === '!genpanel') {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can post the generator panel.', ephemeral: true });
     }
-    const freeStock = await db.get('stock_free') || [];
-    const premiumStock = await db.get('stock_premium') || [];
-
     const embed = new EmbedBuilder()
       .setColor('#00BFFF')
       .setTitle('Alt Generator')
@@ -194,14 +204,12 @@ client.on('messageCreate', async message => {
           .setCustomId('free_altgen')
           .setLabel('Free AltGen')
           .setStyle(ButtonStyle.Primary)
-          .setEmoji('🆓')
-          .setDisabled(freeStock.length === 0),
+          .setEmoji('🆓'),
         new ButtonBuilder()
           .setCustomId('premium_altgen')
           .setLabel('AltGen Premium')
           .setStyle(ButtonStyle.Success)
           .setEmoji('💎')
-          .setDisabled(premiumStock.length === 0)
       );
 
     await message.channel.send({ embeds: [embed], components: [row] });
@@ -212,7 +220,7 @@ client.on('messageCreate', async message => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
 
-  // Existing ticket buttons
+  // Your existing ticket buttons
   if (interaction.customId === 'create_ticket') {
     await interaction.deferReply({ ephemeral: true });
     const guild = interaction.guild;
@@ -283,19 +291,6 @@ client.on('interactionCreate', async interaction => {
   if (type) {
     await interaction.deferReply({ ephemeral: true });
 
-    // Anti-spam cooldown (5 seconds per user on gen buttons)
-    const now = Date.now();
-    const lastClick = buttonCooldowns.get(userId) || 0;
-    if (now - lastClick < GEN_BUTTON_COOLDOWN_MS) {
-      const remaining = GEN_BUTTON_COOLDOWN_MS - (now - lastClick);
-      return interaction.editReply({
-        content: `⏳ Wait ${Math.ceil(remaining / 1000)} seconds before clicking again (anti-spam).`
-      });
-    }
-    buttonCooldowns.set(userId, now);
-    setTimeout(() => buttonCooldowns.delete(userId), GEN_BUTTON_COOLDOWN_MS);
-
-    // 24h cooldown check
     const lastUsed = await db.get(`cooldown_${userId}_${type}`);
     if (lastUsed && Date.now() - lastUsed < COOLDOWN_MS) {
       const remaining = COOLDOWN_MS - (Date.now() - lastUsed);
@@ -306,7 +301,6 @@ client.on('interactionCreate', async interaction => {
       });
     }
 
-    // Get stock
     const accounts = await db.get(`stock_${type}`) || [];
     if (accounts.length === 0) {
       return interaction.editReply({ content: '❌ Out of stock right now. Check back later!' });
@@ -315,22 +309,10 @@ client.on('interactionCreate', async interaction => {
     const account = accounts.shift();
     await db.set(`stock_${type}`, accounts);
 
-    // Apply 24h cooldown
     await db.set(`cooldown_${userId}_${type}`, Date.now());
 
     try {
       await interaction.user.send(`**${label}** account:\n\`\`\`\n${account}\n\`\`\``);
-
-      // Generation log to private channel
-      const logChannel = interaction.guild.channels.cache.get(LOG_CHANNEL_ID);
-      if (logChannel) {
-        logChannel.send(
-          `**${label} generated** by ${interaction.user.tag} (${interaction.user.id})\n` +
-          `Time: ${new Date().toLocaleString()}\n` +
-          `Account: \`\`\`${account}\`\`\``
-        ).catch(console.error);
-      }
-
       await interaction.editReply({ content: '✅ Sent to your DMs! (check spam folder)' });
     } catch (err) {
       await interaction.editReply({ content: '❌ Could not DM you — please enable DMs from server members.' });
