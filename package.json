@@ -8,8 +8,7 @@
   "dependencies": {
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "quick.db": "^9.1.7",
-    "node-fetch": "^2.7.0"
+    "quick.db": "^5.0.0"   // <--- Change to this (v5 is stable and compiles easily)
   },
   "engines": {
     "node": ">=20.0.0"
