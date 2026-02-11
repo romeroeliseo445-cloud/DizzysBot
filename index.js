@@ -145,7 +145,32 @@ client.on('messageCreate', async message => {
   if (message.content === '!stock' && message.member.permissions.has('Administrator')) {
     const free = await db.get('stock_free') || [];
     const premium = await db.get('stock_premium') || [];
-    message.reply(`**Current Stock:**\nFree: ${free.length} accounts\nPremium: ${premium.length} accounts`);
+    message.reply(`**Current Stock Counts:**\nFree: ${free.length} accounts\nPremium: ${premium.length} accounts`);
+  }
+
+  // ── NEW: Remove specific accounts from stock (admin only) ──
+  if (message.content.startsWith('!removestock') && message.member.permissions.has('Administrator')) {
+    const args = message.content.split(' ').slice(1);
+    if (args.length < 2) {
+      return message.reply('Usage: !removestock <free|premium> <account1> <account2> ...');
+    }
+    const type = args[0].toLowerCase();
+    if (!['free', 'premium'].includes(type)) {
+      return message.reply('Type must be "free" or "premium"');
+    }
+    const toRemove = args.slice(1);
+    const stockKey = `stock_${type}`;
+    let current = await db.get(stockKey) || [];
+    let removed = 0;
+    toRemove.forEach(acc => {
+      const index = current.indexOf(acc);
+      if (index !== -1) {
+        current.splice(index, 1);
+        removed++;
+      }
+    });
+    await db.set(stockKey, current);
+    message.reply(`Removed **${removed}** account(s) from **${type}** stock. Total left: ${current.length}`);
   }
 
   // ── NEW: Post generator panel (admin only) ──
