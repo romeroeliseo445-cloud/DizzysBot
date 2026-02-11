@@ -20,8 +20,11 @@ const GEN_BUTTON_COOLDOWN_MS = 5 * 1000;
 const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const buttonCooldowns = new Map();
 
+console.log('Bot starting...');
+console.log('TOKEN present in env:', !!process.env.TOKEN ? 'YES' : 'NO - MISSING TOKEN');
+
 client.once('ready', () => {
-  console.log(`Bot is online and ready! Logged in as ${client.user.tag}`);
+  console.log(`LOGIN SUCCESS - Bot online as ${client.user.tag}`);
 });
 
 client.on('messageCreate', async message => {
@@ -30,7 +33,6 @@ client.on('messageCreate', async message => {
   const args = message.content.slice(1).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
-  // Panel
   if (command === 'panel') {
     const embed = new EmbedBuilder()
       .setColor('#5865F2')
@@ -169,7 +171,7 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
     await message.reply({ content: 'Executors list posted!', ephemeral: true });
   }
 
-  // Stock Management (all remaining commands added)
+  // ── Stock Management ── (all commands)
   if (command === 'uploadstock' || command === 'addstock') {
     if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
     if (args.length < 2) return message.reply('Usage: !uploadstock <free|premium> <account1> <account2> ...');
@@ -317,7 +319,7 @@ client.on('interactionCreate', async interaction => {
 
       await interaction.editReply({ content: `Ticket created: ${ticket}` });
     } catch (error) {
-      console.error('Ticket creation failed:', error);
+      console.error('Ticket creation failed:', error.message);
       await interaction.editReply({ content: 'Failed to create ticket — check bot perms or contact admin.' });
     }
   }
@@ -327,7 +329,7 @@ client.on('interactionCreate', async interaction => {
       return interaction.reply({ content: 'Only sellers can close!', ephemeral: true });
     }
     await interaction.reply('Closing in 5 seconds...');
-    setTimeout(() => interaction.channel.delete().catch(err => console.error('Delete failed:', err)), 5000);
+    setTimeout(() => interaction.channel.delete().catch(err => console.error('Delete failed:', err.message)), 5000);
   }
 
   let type = null;
@@ -381,11 +383,12 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// Login with debug
-console.log('Attempting login... Token present:', !!process.env.TOKEN);
 client.login(process.env.TOKEN)
-  .then(() => console.log('LOGIN SUCCESS - Bot should be online!'))
+  .then(() => console.log('LOGIN SUCCESS - Bot should be online in 5-10 seconds'))
   .catch(err => {
-    console.error('LOGIN ERROR:', err.message);
-    console.error('Full error:', err);
+    console.error('LOGIN CRASHED:', err.message || err);
+    console.error('Full error details:', err);
   });
+
+client.on('error', err => console.error('CLIENT ERROR:', err.message || err));
+client.on('warn', warn => console.log('CLIENT WARNING:', warn));
