@@ -16,7 +16,7 @@ const db = new quickdb.QuickDB();
 // CHANGE THESE THREE LINES // ← Your values
 const SELLER_ROLE_ID = '1470072594303549669';     // Your sellers role ID
 const TICKET_CATEGORY_ID = '1470073289106788518'; // Your Tickets category ID
-const PREMIUM_ROLE_ID = '1471183765622493358'; // ← Add your Premium role ID here (or keep name check below)
+const PREMIUM_ROLE_ID = '1471183765622493358';    // ← Your Premium role ID
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -29,7 +29,6 @@ client.on('messageCreate', async message => {
   if (!message.content.startsWith('!')) return;
 
   // ── Your existing commands ──
-
   if (message.content === '!panel') {
     const embed = new EmbedBuilder()
       .setColor('#5865F2')
@@ -127,23 +126,26 @@ client.on('messageCreate', async message => {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can add stock.', ephemeral: true });
     }
-
     const args = message.content.split(' ').slice(1);
     if (args.length < 2) {
       return message.reply('Usage: !addstock <free|premium> <account1> <account2> ...');
     }
-
     const type = args[0].toLowerCase();
     if (!['free', 'premium'].includes(type)) {
       return message.reply('Type must be "free" or "premium"');
     }
-
     const accounts = args.slice(1);
     let current = await db.get(`stock_${type}`) || [];
     current.push(...accounts);
     await db.set(`stock_${type}`, current);
-
     return message.reply(`Added ${accounts.length} ${type} account(s). Total now: ${current.length}`);
+  }
+
+  // ── NEW: Check stock (admin only) ──
+  if (message.content === '!stock' && message.member.permissions.has('Administrator')) {
+    const free = await db.get('stock_free') || [];
+    const premium = await db.get('stock_premium') || [];
+    message.reply(`**Current Stock:**\nFree: ${free.length} accounts\nPremium: ${premium.length} accounts`);
   }
 
   // ── NEW: Post generator panel (admin only) ──
@@ -151,7 +153,6 @@ client.on('messageCreate', async message => {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can post the generator panel.', ephemeral: true });
     }
-
     const embed = new EmbedBuilder()
       .setColor('#00BFFF')
       .setTitle('Alt Generator')
@@ -252,10 +253,7 @@ client.on('interactionCreate', async interaction => {
     type = 'premium';
     label = 'AltGen Premium';
 
-    // Premium check (using role ID is more reliable than name)
     const hasPremium = interaction.member.roles.cache.has(PREMIUM_ROLE_ID);
-    // Alternative: if you prefer name check → interaction.member.roles.cache.some(r => r.name === 'Premium')
-
     if (!hasPremium) {
       return interaction.reply({
         content: '❌ Premium only! Buy access via ticket or from a seller.',
