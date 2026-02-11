@@ -163,3 +163,21 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
   await message.channel.send({ embeds: [embed] });
   await message.reply({ content: 'Executors list posted!', ephemeral: true });
 }
+  // ── Stock Management ──
+  if (command === 'uploadstock' || command === 'addstock') {
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    if (args.length < 2) return message.reply('Usage: !uploadstock <free|premium> <account1> <account2> ...');
+    const type = args[0].toLowerCase();
+    if (!['free', 'premium'].includes(type)) return message.reply('Type must be "free" or "premium"');
+    const accounts = args.slice(1);
+    let current = await db.get(`stock_${type}`) || [];
+    current.push(...accounts);
+    await db.set(`stock_${type}`, current);
+    await message.reply(`Uploaded **${accounts.length}** ${type} account(s). Total now: **${current.length}**`);
+    const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+    if (logChannel) {
+      logChannel.send(`**Stock Upload** by ${message.author.tag} (${message.author.id})\nType: ${type}\nAdded: ${accounts.length}\nNew total: ${current.length}\nAccounts added: ${accounts.join(', ')}`);
+    }
+  }
+  if (command === 'removestock') {
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Ad
