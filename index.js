@@ -18,8 +18,8 @@ const SELLER_ROLE_ID = '1470072594303549669';     // Your sellers role ID
 const TICKET_CATEGORY_ID = '1470073289106788518'; // Your Tickets category ID
 const PREMIUM_ROLE_ID = '1471183765622493358';    // Your Premium role ID
 
-// NEW: Private log channel for generation logs (right-click channel → Copy ID)
-const LOG_CHANNEL_ID = 'YOUR_LOG_CHANNEL_ID_HERE'; // ← Replace with real channel ID
+// NEW: Add your private log channel ID here (right-click channel → Copy ID)
+const LOG_CHANNEL_ID = 'YOUR_LOG_CHANNEL_ID_HERE'; // ← Replace with real ID
 
 // NEW: 5-second anti-spam cooldown on gen buttons (per user)
 const GEN_BUTTON_COOLDOWN_MS = 5 * 1000; // 5 seconds
@@ -148,14 +148,14 @@ client.on('messageCreate', async message => {
     return message.reply(`Added ${accounts.length} ${type} account(s). Total now: ${current.length}`);
   }
 
-  // ── Check stock counts ──
+  // ── NEW: Check stock counts ──
   if (message.content === '!stock' && message.member.permissions.has('Administrator')) {
     const free = await db.get('stock_free') || [];
     const premium = await db.get('stock_premium') || [];
     message.reply(`**Current Stock Counts:**\nFree: ${free.length} accounts\nPremium: ${premium.length} accounts`);
   }
 
-  // ── View full stock list (DM to admin) ──
+  // ── NEW: View full stock list (DM'd to admin) ──
   if (message.content === '!stocklist' && message.member.permissions.has('Administrator')) {
     const free = await db.get('stock_free') || [];
     const premium = await db.get('stock_premium') || [];
@@ -169,7 +169,7 @@ client.on('messageCreate', async message => {
     message.reply({ content: 'Full stock list sent to your DMs!', ephemeral: true });
   }
 
-  // ── Post generator panel (with auto-disable) ──
+  // ── NEW: Post generator panel (with auto-disable) ──
   if (message.content === '!genpanel') {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can post the generator panel.', ephemeral: true });
@@ -283,7 +283,7 @@ client.on('interactionCreate', async interaction => {
   if (type) {
     await interaction.deferReply({ ephemeral: true });
 
-    // Anti-spam cooldown (5 seconds per user on gen buttons)
+    // NEW: Anti-spam cooldown on buttons (5 seconds)
     const now = Date.now();
     const lastClick = buttonCooldowns.get(userId) || 0;
     if (now - lastClick < GEN_BUTTON_COOLDOWN_MS) {
@@ -295,7 +295,7 @@ client.on('interactionCreate', async interaction => {
     buttonCooldowns.set(userId, now);
     setTimeout(() => buttonCooldowns.delete(userId), GEN_BUTTON_COOLDOWN_MS);
 
-    // 24h cooldown check
+    // Cooldown check (24h)
     const lastUsed = await db.get(`cooldown_${userId}_${type}`);
     if (lastUsed && Date.now() - lastUsed < COOLDOWN_MS) {
       const remaining = COOLDOWN_MS - (Date.now() - lastUsed);
@@ -321,7 +321,7 @@ client.on('interactionCreate', async interaction => {
     try {
       await interaction.user.send(`**${label}** account:\n\`\`\`\n${account}\n\`\`\``);
 
-      // Generation log to private channel
+      // NEW: Log to private channel
       const logChannel = interaction.guild.channels.cache.get(LOG_CHANNEL_ID);
       if (logChannel) {
         logChannel.send(
