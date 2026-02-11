@@ -16,7 +16,14 @@ const db = new quickdb.QuickDB();
 // CHANGE THESE THREE LINES // ← Your values
 const SELLER_ROLE_ID = '1470072594303549669';     // Your sellers role ID
 const TICKET_CATEGORY_ID = '1470073289106788518'; // Your Tickets category ID
-const PREMIUM_ROLE_ID = '1471183765622493358';    // ← Your Premium role ID
+const PREMIUM_ROLE_ID = '1471183765622493358';    // Your Premium role ID
+
+// NEW: Private log channel for generation logs (right-click channel → Copy ID)
+const LOG_CHANNEL_ID = '1471230871100063744'; // ← Replace with real channel ID
+
+// NEW: 5-second anti-spam cooldown on gen buttons (per user)
+const GEN_BUTTON_COOLDOWN_MS = 5 * 1000; // 5 seconds
+const buttonCooldowns = new Map(); // userID → timestamp
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -121,7 +128,7 @@ client.on('messageCreate', async message => {
     await message.reply({ content: 'Executors list posted!', ephemeral: true });
   }
 
-  // ── NEW: Add stock (admin only) ──
+  // ── Add stock ──
   if (message.content.startsWith('!addstock')) {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can add stock.', ephemeral: true });
@@ -141,43 +148,35 @@ client.on('messageCreate', async message => {
     return message.reply(`Added ${accounts.length} ${type} account(s). Total now: ${current.length}`);
   }
 
-  // ── NEW: Check stock (admin only) ──
+  // ── Check stock counts ──
   if (message.content === '!stock' && message.member.permissions.has('Administrator')) {
     const free = await db.get('stock_free') || [];
     const premium = await db.get('stock_premium') || [];
     message.reply(`**Current Stock Counts:**\nFree: ${free.length} accounts\nPremium: ${premium.length} accounts`);
   }
 
-  // ── NEW: Remove specific accounts from stock (admin only) ──
-  if (message.content.startsWith('!removestock') && message.member.permissions.has('Administrator')) {
-    const args = message.content.split(' ').slice(1);
-    if (args.length < 2) {
-      return message.reply('Usage: !removestock <free|premium> <account1> <account2> ...');
-    }
-    const type = args[0].toLowerCase();
-    if (!['free', 'premium'].includes(type)) {
-      return message.reply('Type must be "free" or "premium"');
-    }
-    const toRemove = args.slice(1);
-    const stockKey = `stock_${type}`;
-    let current = await db.get(stockKey) || [];
-    let removed = 0;
-    toRemove.forEach(acc => {
-      const index = current.indexOf(acc);
-      if (index !== -1) {
-        current.splice(index, 1);
-        removed++;
-      }
-    });
-    await db.set(stockKey, current);
-    message.reply(`Removed **${removed}** account(s) from **${type}** stock. Total left: ${current.length}`);
+  // ── View full stock list (DM to admin) ──
+  if (message.content === '!stocklist' && message.member.permissions.has('Administrator')) {
+    const free = await db.get('stock_free') || [];
+    const premium = await db.get('stock_premium') || [];
+    let reply = `**Full Stock List**\n\n**Free (${free.length}):**\n`;
+    if (free.length > 0) reply += free.join('\n') + '\n\n';
+    else reply += 'Empty\n\n';
+    reply += `**Premium (${premium.length}):**\n`;
+    if (premium.length > 0) reply += premium.join('\n');
+    else reply += 'Empty';
+    message.author.send(reply).catch(() => message.reply('Could not DM you — open DMs.'));
+    message.reply({ content: 'Full stock list sent to your DMs!', ephemeral: true });
   }
 
-  // ── NEW: Post generator panel (admin only) ──
+  // ── Post generator panel (with auto-disable) ──
   if (message.content === '!genpanel') {
     if (!message.member.permissions.has('Administrator')) {
       return message.reply({ content: 'Only admins can post the generator panel.', ephemeral: true });
     }
+    const freeStock = await db.get('stock_free') || [];
+    const premiumStock = await db.get('stock_premium') || [];
+
     const embed = new EmbedBuilder()
       .setColor('#00BFFF')
       .setTitle('Alt Generator')
@@ -195,12 +194,14 @@ client.on('messageCreate', async message => {
           .setCustomId('free_altgen')
           .setLabel('Free AltGen')
           .setStyle(ButtonStyle.Primary)
-          .setEmoji('🆓'),
+          .setEmoji('🆓')
+          .setDisabled(freeStock.length === 0),
         new ButtonBuilder()
           .setCustomId('premium_altgen')
           .setLabel('AltGen Premium')
           .setStyle(ButtonStyle.Success)
           .setEmoji('💎')
+          .setDisabled(premiumStock.length === 0)
       );
 
     await message.channel.send({ embeds: [embed], components: [row] });
@@ -211,20 +212,17 @@ client.on('messageCreate', async message => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
 
-  // Your existing ticket buttons
+  // Existing ticket buttons
   if (interaction.customId === 'create_ticket') {
     await interaction.deferReply({ ephemeral: true });
     const guild = interaction.guild;
     const user = interaction.user;
-
     let ticket = guild.channels.cache.find(ch =>
       ch.name === `ticket-${user.username.toLowerCase()}` && ch.parentId === TICKET_CATEGORY_ID
     );
-
     if (ticket) {
       return interaction.editReply({ content: `You already have a ticket: ${ticket}` });
     }
-
     ticket = await guild.channels.create({
       name: `ticket-${user.username}`,
       type: ChannelType.GuildText,
@@ -235,12 +233,10 @@ client.on('interactionCreate', async interaction => {
         { id: SELLER_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
       ]
     });
-
     const welcomeEmbed = new EmbedBuilder()
       .setColor('#00ff00')
       .setTitle(`Purchase Ticket - ${user.username}`)
       .setDescription('A seller will help soon!\nTell us what you want to buy.');
-
     const closeRow = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
@@ -248,13 +244,11 @@ client.on('interactionCreate', async interaction => {
           .setLabel('Close Ticket')
           .setStyle(ButtonStyle.Danger)
       );
-
     await ticket.send({
       content: `<@&${SELLER_ROLE_ID}> New ticket from ${user}!`,
       embeds: [welcomeEmbed],
       components: [closeRow]
     });
-
     await interaction.editReply({ content: `Ticket created: ${ticket}` });
   }
 
@@ -266,7 +260,7 @@ client.on('interactionCreate', async interaction => {
     setTimeout(() => interaction.channel.delete(), 5000);
   }
 
-  // ── NEW: Alt Generator buttons ──
+  // ── Alt Generator buttons ──
   const userId = interaction.user.id;
   let type = null;
   let label = '';
@@ -277,7 +271,6 @@ client.on('interactionCreate', async interaction => {
   } else if (interaction.customId === 'premium_altgen') {
     type = 'premium';
     label = 'AltGen Premium';
-
     const hasPremium = interaction.member.roles.cache.has(PREMIUM_ROLE_ID);
     if (!hasPremium) {
       return interaction.reply({
@@ -290,7 +283,19 @@ client.on('interactionCreate', async interaction => {
   if (type) {
     await interaction.deferReply({ ephemeral: true });
 
-    // Cooldown check (same for both)
+    // Anti-spam cooldown (5 seconds per user on gen buttons)
+    const now = Date.now();
+    const lastClick = buttonCooldowns.get(userId) || 0;
+    if (now - lastClick < GEN_BUTTON_COOLDOWN_MS) {
+      const remaining = GEN_BUTTON_COOLDOWN_MS - (now - lastClick);
+      return interaction.editReply({
+        content: `⏳ Wait ${Math.ceil(remaining / 1000)} seconds before clicking again (anti-spam).`
+      });
+    }
+    buttonCooldowns.set(userId, now);
+    setTimeout(() => buttonCooldowns.delete(userId), GEN_BUTTON_COOLDOWN_MS);
+
+    // 24h cooldown check
     const lastUsed = await db.get(`cooldown_${userId}_${type}`);
     if (lastUsed && Date.now() - lastUsed < COOLDOWN_MS) {
       const remaining = COOLDOWN_MS - (Date.now() - lastUsed);
@@ -310,11 +315,22 @@ client.on('interactionCreate', async interaction => {
     const account = accounts.shift();
     await db.set(`stock_${type}`, accounts);
 
-    // Apply cooldown
+    // Apply 24h cooldown
     await db.set(`cooldown_${userId}_${type}`, Date.now());
 
     try {
       await interaction.user.send(`**${label}** account:\n\`\`\`\n${account}\n\`\`\``);
+
+      // Generation log to private channel
+      const logChannel = interaction.guild.channels.cache.get(LOG_CHANNEL_ID);
+      if (logChannel) {
+        logChannel.send(
+          `**${label} generated** by ${interaction.user.tag} (${interaction.user.id})\n` +
+          `Time: ${new Date().toLocaleString()}\n` +
+          `Account: \`\`\`${account}\`\`\``
+        ).catch(console.error);
+      }
+
       await interaction.editReply({ content: '✅ Sent to your DMs! (check spam folder)' });
     } catch (err) {
       await interaction.editReply({ content: '❌ Could not DM you — please enable DMs from server members.' });
