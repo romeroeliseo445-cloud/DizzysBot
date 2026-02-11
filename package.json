@@ -1,14 +1,14 @@
 {
   "name": "dizzyhub-bot",
   "version": "1.0.0",
-  "description": "DizzyHub Discord bot - ticket system + alt generator",
+  "description": "DizzyHub Discord bot",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "author": "AxiFallstudios",
+  "author": "Dizzy",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^14.17.1",
