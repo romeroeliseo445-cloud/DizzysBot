@@ -382,17 +382,7 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// KEEP RENDER HAPPY ON FREE TIER
-const express = require('express');
-const app = express();
-
-app.get('/', (req, res) => {
-  res.send('DizzyHub bot is alive 🟢');
-});
-
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Web server running on port ${process.env.PORT || 3000}`);
-});client.login(process.env.TOKEN)
+client.login(process.env.TOKEN)
   .then(() => console.log('LOGIN SUCCESS - Bot should be online in 5-10 seconds'))
   .catch(err => {
     console.error('LOGIN CRASHED:', err.message || err);
@@ -401,5 +391,6 @@ app.listen(process.env.PORT || 3000, () => {
 
 client.on('error', err => console.error('CLIENT ERROR:', err.message || err));
 client.on('warn', warn => console.log('CLIENT WARNING:', warn));
+
 
 
