@@ -10,6 +10,7 @@ const client = new Client({
   ]
 });
 const db = new QuickDB();
+db.init({ driver: require('better-sqlite3') }); // Use SQLite driver for better performance & reliability on Render
 
 const SELLER_ROLE_ID = '1470072594303549669';
 const TICKET_CATEGORY_ID = '1470073289106788518';
@@ -59,7 +60,9 @@ client.on('messageCreate', async message => {
           .setEmoji('💰')
       );
     await message.channel.send({ embeds: [embed], components: [row] });
-    await message.reply({ content: 'Panel sent!', ephemeral: true });
+    message.reply('✅ Panel sent!').then(sent => {
+      setTimeout(() => sent.delete().catch(() => {}), 5000);
+    }).catch(() => {});
   }
 
   if (command === 'prices') {
@@ -118,7 +121,9 @@ MONEY:
 📩 DM FOR MORE INFO / ORDERS`)
       .setFooter({ text: 'Prices subject to change • DM for custom deals' });
     await message.channel.send({ embeds: [embed] });
-    await message.reply({ content: 'Prices posted!', ephemeral: true });
+    message.reply('✅ Prices posted!').then(sent => {
+      setTimeout(() => sent.delete().catch(() => {}), 5000);
+    }).catch(() => {});
   }
 
   if (command === 'executors') {
@@ -165,14 +170,15 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
 **Questions?** Contact <@&${SELLER_ROLE_ID}> or DM @Dizzy`)
       .setFooter({ text: 'Executors stats can change • Always verify links • BE CAREFUL' })
       .setTimestamp();
-
     await message.channel.send({ embeds: [embed] });
-    await message.reply({ content: 'Executors list posted!', ephemeral: true });
+    message.reply('✅ Executors list posted!').then(sent => {
+      setTimeout(() => sent.delete().catch(() => {}), 5000);
+    }).catch(() => {});
   }
 
   // ── Stock Management ── (all commands)
   if (command === 'uploadstock' || command === 'addstock') {
-    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.' });
     if (args.length < 2) return message.reply('Usage: !uploadstock <free|premium> <account1> <account2> ...');
     const type = args[0].toLowerCase();
     if (!['free', 'premium'].includes(type)) return message.reply('Type must be "free" or "premium"');
@@ -188,7 +194,7 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
   }
 
   if (command === 'removestock') {
-    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.' });
     if (args.length < 2) return message.reply('Usage: !removestock <free|premium> <account1> [account2]...');
     const type = args[0].toLowerCase();
     if (!['free', 'premium'].includes(type)) return message.reply('Type must be free/premium');
@@ -208,7 +214,7 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
   }
 
   if (command === 'clearstock') {
-    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.' });
     await message.reply('⚠️ Reply with **YES** to **clear ALL stock** (free + premium). This cannot be undone.');
     const filter = m => m.author.id === message.author.id && m.content.toUpperCase() === 'YES';
     try {
@@ -234,7 +240,9 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
     const premium = await db.get('stock_premium') || [];
     let text = `**Full Stock List**\n\n**Free (${free.length}):**\n${free.length ? free.join('\n') : 'Empty'}\n\n**Premium (${premium.length}):**\n${premium.length ? premium.join('\n') : 'Empty'}`;
     message.author.send(text).catch(() => message.reply('Couldn\'t DM you - enable DMs from server members.'));
-    message.reply({ content: 'Stock list sent to DMs!', ephemeral: true });
+    message.reply('✅ Stock list sent to DMs!').then(sent => {
+      setTimeout(() => sent.delete().catch(() => {}), 5000);
+    }).catch(() => {});
   }
 
   if (command === 'resetcooldown' && message.author.id === OWNER_ID) {
@@ -262,7 +270,9 @@ VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
         new ButtonBuilder().setCustomId('premium_altgen').setLabel('AltGen Premium').setStyle(ButtonStyle.Success).setEmoji('💎').setDisabled(premiumStock.length === 0)
       );
     await message.channel.send({ embeds: [embed], components: [row] });
-    await message.reply({ content: 'Generator panel posted!', ephemeral: true });
+    message.reply('✅ Generator panel posted!').then(sent => {
+      setTimeout(() => sent.delete().catch(() => {}), 5000);
+    }).catch(() => {});
   }
 });
 
@@ -381,6 +391,7 @@ client.on('interactionCreate', async interaction => {
     }
   }
 });
+
 // ======================
 // RENDER FREE TIER KEEP-ALIVE + FINAL LOGS
 // ======================
@@ -405,5 +416,3 @@ client.login(process.env.TOKEN)
 
 client.on('error', err => console.error('CLIENT ERROR:', err.message || err));
 client.on('warn', warn => console.log('CLIENT WARNING:', warn));
-
-
