@@ -381,6 +381,20 @@ client.on('interactionCreate', async interaction => {
     }
   }
 });
+// ======================
+// RENDER FREE TIER KEEP-ALIVE + FINAL LOGS
+// ======================
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('DizzyHub bot is alive 🟢');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Keep-alive web server running on port ${PORT}`);
+});
 
 client.login(process.env.TOKEN)
   .then(() => console.log('LOGIN SUCCESS - Bot should be online in 5-10 seconds'))
