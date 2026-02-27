@@ -1,13 +1,13 @@
-<div><br class="Apple-interchange-newline">const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 const { QuickDB } = require('quick.db');
 const client = new Client({
- intents: [
- GatewayIntentBits.Guilds,
- GatewayIntentBits.GuildMessages,
- GatewayIntentBits.MessageContent,
- GatewayIntentBits.GuildMembers
- ]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers
+  ]
 });
 const db = new QuickDB();
 
@@ -21,272 +21,389 @@ const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const buttonCooldowns = new Map();
 
 console.log('Bot starting...');
-console.log('TOKEN present in env:', !!process.env.TOKEN ? 'YES' :;
+console.log('TOKEN present in env:', !!process.env.TOKEN ? 'YES' : 'NO - MISSING TOKEN');
 
 client.once('ready', () => {
- console.log(LOGIN SUCCESS - Bot online as ${client.user.tag});
+  console.log(`LOGIN SUCCESS - Bot online as ${client.user.tag}`);
 });
 
 client.on('messageCreate', async message => {
- if (message.author.bot) return;
- if (!message.content.startsWith('!')) return;
- const args = message.content.slice(1).trim().split(/ +/);
- const command = args.shift().toLowerCase();
+  if (message.author.bot) return;
+  if (!message.content.startsWith('!')) return;
+  const args = message.content.slice(1).trim().split(/ +/);
+  const command = args.shift().toLowerCase();
 
- if (command === 'panel') {
- const embed = new EmbedBuilder()
- .setColor('#5865F2')
- .setTitle('DizzyHub')
- .setDescription(
- 'Welcome to DizzyHub!\n\n' +
- '• Click below to open a ticket\n' +
- '• Be patient — sellers will answer soon\n\n' +
- '**Rules:**\n' +
- '- No scamming accusations\n' +
- '- Be respectful\n' +
- '- Tickets only for purchases\n\n' +
- '**Links / Contact:**\n' +
- '• Email: yaboidizzy67@gmail.com\n' +
- '• Contact: <@&' + SELLER_ROLE_ID + '>'
- )
- .setFooter({ text: 'DizzyHubs bot • From Dizzy' });
- const row = new ActionRowBuilder()
- .addComponents(
- new ButtonBuilder()
- .setCustomId('create_ticket')
- .setLabel('Open Purchase Ticket')
- .setStyle(ButtonStyle.Success)
- .setEmoji('💰')
- );
- await message.channel.send({ embeds: [embed], components: [row] });
- await message.reply({ content: 'Panel sent!', ephemeral: true });
- }
+  if (command === 'panel') {
+    const embed = new EmbedBuilder()
+      .setColor('#5865F2')
+      .setTitle('DizzyHub')
+      .setDescription(
+        'Welcome to DizzyHub!\n\n' +
+        '• Click below to open a ticket\n' +
+        '• Be patient — sellers will answer soon\n\n' +
+        '**Rules:**\n' +
+        '- No scamming accusations\n' +
+        '- Be respectful\n' +
+        '- Tickets only for purchases\n\n' +
+        '**Links / Contact:**\n' +
+        '• Email: yaboidizzy67@gmail.com\n' +
+        '• Contact: <@&' + SELLER_ROLE_ID + '>'
+      )
+      .setFooter({ text: 'DizzyHubs bot • From Dizzy' });
+    const row = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('create_ticket')
+          .setLabel('Open Purchase Ticket')
+          .setStyle(ButtonStyle.Success)
+          .setEmoji('💰')
+      );
+    await message.channel.send({ embeds: [embed], components: [row] });
+    await message.reply({ content: 'Panel sent!', ephemeral: true });
+  }
 
- if (command === 'prices') {
- const embed = new EmbedBuilder()
- .setColor('#FFD700')
- .setTitle('💰 Prices & Bundles')
- .setDescription(\<br>🏙️ THA BRONX 3 — ACCOUNTS & MEMBERSHIPS<br>💠 $5 — BASIC<br>• 5 Cars | $990k Clean | $550k Dirty<br>• 1 Watch<br>• Full Gun Safe<br>💠 $10 — PREMIUM<br>• 25 Cars | $990k Clean & Dirty<br>• 5 Watches<br>• Full Gun Safe + Backpack<br>💠 $25 — EXOTIC<br>• ALL Cars | $1.6m Clean, Dirty & Bank<br>• ALL Watches<br>• Full Safe + Backpack + Trunk<br>• ALL Clothing<br>• Looting Pass<br>• Extra Wallet Pass<br>🔥 PREMIUM MEMBERSHIPS (Dupes or Money)<br>GUNS:<br>• 7 Days — $5<br>• 30 Days — $10<br>• 60 Days — $15<br>• LIFETIME — $25<br>MONEY:<br>• 7 Days — $6.50<br>• 30 Days — $7.50<br>• 60 Days — $10.50<br>• LIFETIME — $25<br>🏙️ PHILLY STREETS 2<br>💰 MONEY DROPS<br>• $1 → $5 MILL<br>• $2 → $10 MILL<br>• $3 → $15 MILL<br>• $4 → $20 MILL<br>• $5 → $25 MILL<br>💠 $5 — BASIC<br>• 5 Cars | $5.5 MILL Clean & Dirty<br>• 5 Outfits<br>• 1 Watch<br>💠 $10 — PREMIUM<br>• 10 Cars | $15 MILL Clean & Dirty<br>• 10 Outfits<br>• 5 Watches<br>💠 $25 — EXOTIC<br>• ALL Cars | MAX Clean & Dirty<br>• EVERY Outfit & Watch<br>• Double Wallet Pass<br>• Looting Pass<br>🚧 CENTRAL STREETS — COMING SOON 🚧<br>📩 DM FOR MORE INFO / ORDERS)
- .setFooter({ text: 'Prices subject to change • DM for custom deals' });
- await message.channel.send({ embeds: [embed] });
- await message.reply({ content: 'Prices posted!', ephemeral: true });
- }
+  if (command === 'prices') {
+    const embed = new EmbedBuilder()
+      .setColor('#FFD700')
+      .setTitle('💰 Prices & Bundles')
+      .setDescription(`\
+🏙️ THA BRONX 3 — ACCOUNTS & MEMBERSHIPS
+💠 $5 — BASIC
+• 5 Cars | $990k Clean | $550k Dirty
+• 1 Watch
+• Full Gun Safe
+💠 $10 — PREMIUM
+• 25 Cars | $990k Clean & Dirty
+• 5 Watches
+• Full Gun Safe + Backpack
+💠 $25 — EXOTIC
+• ALL Cars | $1.6m Clean, Dirty & Bank
+• ALL Watches
+• Full Safe + Backpack + Trunk
+• ALL Clothing
+• Looting Pass
+• Extra Wallet Pass
+🔥 PREMIUM MEMBERSHIPS (Dupes or Money)
+GUNS:
+• 7 Days — $5
+• 30 Days — $10
+• 60 Days — $15
+• LIFETIME — $25
+MONEY:
+• 7 Days — $6.50
+• 30 Days — $7.50
+• 60 Days — $10.50
+• LIFETIME — $25
+🏙️ PHILLY STREETS 2
+💰 MONEY DROPS
+• $1 → $5 MILL
+• $2 → $10 MILL
+• $3 → $15 MILL
+• $4 → $20 MILL
+• $5 → $25 MILL
+💠 $5 — BASIC
+• 5 Cars | $5.5 MILL Clean & Dirty
+• 5 Outfits
+• 1 Watch
+💠 $10 — PREMIUM
+• 10 Cars | $15 MILL Clean & Dirty
+• 10 Outfits
+• 5 Watches
+💠 $25 — EXOTIC
+• ALL Cars | MAX Clean & Dirty
+• EVERY Outfit & Watch
+• Double Wallet Pass
+• Looting Pass
+🚧 CENTRAL STREETS — COMING SOON 🚧
+📩 DM FOR MORE INFO / ORDERS`)
+      .setFooter({ text: 'Prices subject to change • DM for custom deals' });
+    await message.channel.send({ embeds: [embed] });
+    await message.reply({ content: 'Prices posted!', ephemeral: true });
+  }
 
- if (command === 'executors') {
- const embed = new EmbedBuilder()
- .setColor('#FF4500')
- .setTitle('🔥 Executors List – Best Tools for Roblox Scripting')
- .setDescription(\<br>⚠️ **IMPORTANT DISCLAIMER**<br>Executors violate Roblox TOS and can lead to account bans, malware, or keyloggers.<br>Use at your own risk! Research thoroughly, use antivirus, and never share personal info.<br>We are NOT responsible for any issues. Download only from trusted sources.<br><br>**PC/WINDOWS**<br><br>**Paid**<br>• **Potassium** - sUNC 100% / UNC 100% → [Link](https://bloxproducts.com/r/weao#Potassium)<br>• **Seliware** - sUNC 100% / UNC 98% → [Link](https://robloxcheatz.com/product?id=51c9587f-4794-46ef-b6bf-2bd9f13c17d2&ref=weao)<br>• **Volcano** - sUNC 97% / UNC 98% → [Link](https://gckeys.cc/product?slug=volcano-executor&ref=weao)<br>• **Volt** - sUNC 100% / UNC 98% → [Link](https://bloxproducts.com/r/weao#Volt)<br>• **Cryptic** - sUNC 94% / UNC 97% → [Link](https://bloxproducts.com/?affiliate_key=weao#Cryptic)<br><br>**Free**<br>• **Velocity** - sUNC 94% / UNC 99% → [Link](https://realvelocity.xyz/)<br>• **Xeno** - sUNC 27% / UNC 82% → [Link](https://www.xeno.onl/)<br><br>**iOS/ANDROID**<br><br>**Free**<br>• **Delta** - sUNC 100% / UNC 99% → [Official Site](https://delta-executor.com/) (or check deltaexploits.gg for updates)<br>• **Codex** - sUNC 96% / UNC 98% → [Link](https://robloxcheatz.com/affiliate/weao) or [codex.lol](https://www.codex.lol/)<br><br>**MAC**<br><br>**Free**<br>• **Hydrogen** - sUNC 90% / UNC 99% → [Link](https://hydrogenmacos.selly.store/)<br><br>**Paid**<br>• **MacSploit** - sUNC 100% / UNC 99% → [Link](https://bloxproducts.com/?affiliate_key=weao#MacSploit)<br><br>I HIGHLY RECOMMEND PAID EXECUTORS FOR BETTER STABILITY & SUPPORT.<br>VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.<br><br>**Follow for updates:** [TikTok](https://www.tiktok.com/@officialplug100?_r=1&_t=ZT-93mkMBzXUZq)<br>**Questions?** Contact <@&${SELLER_ROLE_ID}> or DM @Dizzy)
- .setFooter({ text: 'Executors stats can change • Always verify links • BE CAREFUL' })
- .setTimestamp();
+  if (command === 'executors') {
+    const embed = new EmbedBuilder()
+      .setColor('#FF4500')
+      .setTitle('🔥 Executors List – Best Tools for Roblox Scripting')
+      .setDescription(`\
+⚠️ **IMPORTANT DISCLAIMER**
+Executors violate Roblox TOS and can lead to account bans, malware, or keyloggers.
+Use at your own risk! Research thoroughly, use antivirus, and never share personal info.
+We are NOT responsible for any issues. Download only from trusted sources.
 
- await message.channel.send({ embeds: [embed] });
- await message.reply({ content: 'Executors list posted!', ephemeral: true });
- }
+**PC/WINDOWS**
 
- // ── Stock Management ── (all commands)
- if (command === 'uploadstock' || command === 'addstock') {
- if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
- if (args.length < 2) return message.reply('Usage: !uploadstock <free|premium> <account1> <account2> ...');
- const type = args[0].toLowerCase();
- if (!['free', 'premium'].includes(type)) return message.reply('Type must be "free" or "premium"');
- const accounts = args.slice(1);
- let current = await db.get(stock_${type}) || [];
- current.push(...accounts);
- await db.set(stock_${type}, current);
- await message.reply(Uploaded **${accounts.length}** ${type} account(s). Total now: **${current.length}**);
- const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
- if (logChannel) {
- logChannel.send(**Stock Upload** by ${message.author.tag} (${message.author.id})\nType: ${type}\nAdded: ${accounts.length}\nNew total: ${current.length}\nAccounts added: ${accounts.join(', ')});
- }
- }
+**Paid**
+• **Potassium** - sUNC 100% / UNC 100% → [Link](https://bloxproducts.com/r/weao#Potassium)
+• **Seliware** - sUNC 100% / UNC 98% → [Link](https://robloxcheatz.com/product?id=51c9587f-4794-46ef-b6bf-2bd9f13c17d2&ref=weao)
+• **Volcano** - sUNC 97% / UNC 98% → [Link](https://gckeys.cc/product?slug=volcano-executor&ref=weao)
+• **Volt** - sUNC 100% / UNC 98% → [Link](https://bloxproducts.com/r/weao#Volt)
+• **Cryptic** - sUNC 94% / UNC 97% → [Link](https://bloxproducts.com/?affiliate_key=weao#Cryptic)
 
- if (command === 'removestock') {
- if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
- if (args.length < 2) return message.reply('Usage: !removestock <free|premium> <account1> [account2]...');
- const type = args[0].toLowerCase();
- if (!['free', 'premium'].includes(type)) return message.reply('Type must be free/premium');
- let current = await db.get(stock_${type}) || [];
- let removed = 0;
- args.slice(1).forEach(acc => {
- const index = current.indexOf(acc);
- if (index !== -1) {
- current.splice(index, 1);
- removed++;
- }
- });
- await db.set(stock_${type}, current);
- await message.reply(Removed **${removed}** ${type} account(s). Remaining: **${current.length}**);
- const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
- if (logChannel) logChannel.send(**Stock Removal** by ${message.author.tag}\nType: ${type}\nRemoved: ${removed});
- }
+**Free**
+• **Velocity** - sUNC 94% / UNC 99% → [Link](https://realvelocity.xyz/)
+• **Xeno** - sUNC 27% / UNC 82% → [Link](https://www.xeno.onl/)
 
- if (command === 'clearstock') {
- if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
- await message.reply('⚠️ Reply with **YES** to **clear ALL stock** (free + premium). This cannot be undone.');
- const filter = m => m.author.id === message.author.id && m.content.toUpperCase() === 'YES';
- try {
- await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] });
- await db.delete('stock_free');
- await db.delete('stock_premium');
- await message.reply('**All stock cleared.**');
- const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
- if (logChannel) logChannel.send(**Stock Cleared** by ${message.author.tag} (${message.author.id}));
- } catch {
- await message.reply('Cancelled - stock not cleared.');
- }
- }
+**iOS/ANDROID**
 
- if (command === 'stock' && message.member.permissions.has('Administrator')) {
- const free = await db.get('stock_free') || [];
- const premium = await db.get('stock_premium') || [];
- message.reply(**Stock Counts:**\nFree: ${free.length}\nPremium: ${premium.length});
- }
+**Free**
+• **Delta** - sUNC 100% / UNC 99% → [Official Site](https://delta-executor.com/) (or check deltaexploits.gg for updates)
+• **Codex** - sUNC 96% / UNC 98% → [Link](https://robloxcheatz.com/affiliate/weao) or [codex.lol](https://www.codex.lol/)
 
- if (command === 'stocklist' && message.member.permissions.has('Administrator')) {
- const free = await db.get('stock_free') || [];
- const premium = await db.get('stock_premium') || [];
- let text = **Full Stock List**\n\n**Free (${free.length}):**\n${free.length ? free.join('\n') : 'Empty'}\n\n**Premium (${premium.length}):**\n${premium.length ? premium.join('\n') : 'Empty'};
- message.author.send(text).catch(() => message.reply('Couldn't DM you - enable DMs from server members.'));
- message.reply({ content: 'Stock list sent to DMs!', ephemeral: true });
- }
+**MAC**
 
- if (command === 'resetcooldown' && message.author.id === OWNER_ID) {
- if (args.length < 2) return message.reply('Usage: !resetcooldown @user <free|premium|all>');
- const user = message.mentions.users.first();
- if (!user) return message.reply('Mention a user.');
- const type = args[1].toLowerCase();
- if (!['free', 'premium', 'all'].includes(type)) return message.reply('Type: free, premium, or all');
- if (type === 'all' || type === 'free') await db.delete(cooldown_${user.id}_free);
- if (type === 'all' || type === 'premium') await db.delete(cooldown_${user.id}_premium);
- message.reply(Cooldown reset for ${user.tag} (${type}).);
- }
+**Free**
+• **Hydrogen** - sUNC 90% / UNC 99% → [Link](https://hydrogenmacos.selly.store/)
 
- if (command === 'genpanel' && message.member.permissions.has('Administrator')) {
- const freeStock = await db.get('stock_free') || [];
- const premiumStock = await db.get('stock_premium') || [];
- const embed = new EmbedBuilder()
- .setColor('#00BFFF')
- .setTitle('Alt Generator')
- .setDescription('Get your alts here!\n\n• **Free AltGen** → 24h cooldown\n• **AltGen Premium** → Premium role + 24h cooldown\n\nPremium? Buy via ticket!')
- .setFooter({ text: 'Stock managed by DizzyHub' });
- const row = new ActionRowBuilder()
- .addComponents(
- new ButtonBuilder().setCustomId('free_altgen').setLabel('Free AltGen').setStyle(ButtonStyle.Primary).setEmoji('🆓').setDisabled(freeStock.length === 0),
- new ButtonBuilder().setCustomId('premium_altgen').setLabel('AltGen Premium').setStyle(ButtonStyle.Success).setEmoji('💎').setDisabled(premiumStock.length === 0)
- );
- await message.channel.send({ embeds: [embed], components: [row] });
- await message.reply({ content: 'Generator panel posted!', ephemeral: true });
- }
+**Paid**
+• **MacSploit** - sUNC 100% / UNC 99% → [Link](https://bloxproducts.com/?affiliate_key=weao#MacSploit)
+
+I HIGHLY RECOMMEND PAID EXECUTORS FOR BETTER STABILITY & SUPPORT.
+VOLCANO, SELIWARE, VOLT, AND POTASSIUM WORK GREAT.
+
+**Follow for updates:** [TikTok](https://www.tiktok.com/@officialplug100?_r=1&_t=ZT-93mkMBzXUZq)
+**Questions?** Contact <@&${SELLER_ROLE_ID}> or DM @Dizzy`)
+      .setFooter({ text: 'Executors stats can change • Always verify links • BE CAREFUL' })
+      .setTimestamp();
+
+    await message.channel.send({ embeds: [embed] });
+    await message.reply({ content: 'Executors list posted!', ephemeral: true });
+  }
+
+  // ── Stock Management ── (all commands)
+  if (command === 'uploadstock' || command === 'addstock') {
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    if (args.length < 2) return message.reply('Usage: !uploadstock <free|premium> <account1> <account2> ...');
+    const type = args[0].toLowerCase();
+    if (!['free', 'premium'].includes(type)) return message.reply('Type must be "free" or "premium"');
+    const accounts = args.slice(1);
+    let current = await db.get(`stock_${type}`) || [];
+    current.push(...accounts);
+    await db.set(`stock_${type}`, current);
+    await message.reply(`Uploaded **${accounts.length}** ${type} account(s). Total now: **${current.length}**`);
+    const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+    if (logChannel) {
+      logChannel.send(`**Stock Upload** by ${message.author.tag} (${message.author.id})\nType: ${type}\nAdded: ${accounts.length}\nNew total: ${current.length}\nAccounts added: ${accounts.join(', ')}`);
+    }
+  }
+
+  if (command === 'removestock') {
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    if (args.length < 2) return message.reply('Usage: !removestock <free|premium> <account1> [account2]...');
+    const type = args[0].toLowerCase();
+    if (!['free', 'premium'].includes(type)) return message.reply('Type must be free/premium');
+    let current = await db.get(`stock_${type}`) || [];
+    let removed = 0;
+    args.slice(1).forEach(acc => {
+      const index = current.indexOf(acc);
+      if (index !== -1) {
+        current.splice(index, 1);
+        removed++;
+      }
+    });
+    await db.set(`stock_${type}`, current);
+    await message.reply(`Removed **${removed}** ${type} account(s). Remaining: **${current.length}**`);
+    const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+    if (logChannel) logChannel.send(`**Stock Removal** by ${message.author.tag}\nType: ${type}\nRemoved: ${removed}`);
+  }
+
+  if (command === 'clearstock') {
+    if (!message.member.permissions.has('Administrator')) return message.reply({ content: 'Admins only.', ephemeral: true });
+    await message.reply('⚠️ Reply with **YES** to **clear ALL stock** (free + premium). This cannot be undone.');
+    const filter = m => m.author.id === message.author.id && m.content.toUpperCase() === 'YES';
+    try {
+      await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] });
+      await db.delete('stock_free');
+      await db.delete('stock_premium');
+      await message.reply('**All stock cleared.**');
+      const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+      if (logChannel) logChannel.send(`**Stock Cleared** by ${message.author.tag} (${message.author.id})`);
+    } catch {
+      await message.reply('Cancelled - stock not cleared.');
+    }
+  }
+
+  if (command === 'stock' && message.member.permissions.has('Administrator')) {
+    const free = await db.get('stock_free') || [];
+    const premium = await db.get('stock_premium') || [];
+    message.reply(`**Stock Counts:**\nFree: ${free.length}\nPremium: ${premium.length}`);
+  }
+
+  if (command === 'stocklist' && message.member.permissions.has('Administrator')) {
+    const free = await db.get('stock_free') || [];
+    const premium = await db.get('stock_premium') || [];
+    let text = `**Full Stock List**\n\n**Free (${free.length}):**\n${free.length ? free.join('\n') : 'Empty'}\n\n**Premium (${premium.length}):**\n${premium.length ? premium.join('\n') : 'Empty'}`;
+    message.author.send(text).catch(() => message.reply('Couldn\'t DM you - enable DMs from server members.'));
+    message.reply({ content: 'Stock list sent to DMs!', ephemeral: true });
+  }
+
+  if (command === 'resetcooldown' && message.author.id === OWNER_ID) {
+    if (args.length < 2) return message.reply('Usage: !resetcooldown @user <free|premium|all>');
+    const user = message.mentions.users.first();
+    if (!user) return message.reply('Mention a user.');
+    const type = args[1].toLowerCase();
+    if (!['free', 'premium', 'all'].includes(type)) return message.reply('Type: free, premium, or all');
+    if (type === 'all' || type === 'free') await db.delete(`cooldown_${user.id}_free`);
+    if (type === 'all' || type === 'premium') await db.delete(`cooldown_${user.id}_premium`);
+    message.reply(`Cooldown reset for ${user.tag} (${type}).`);
+  }
+
+  if (command === 'genpanel' && message.member.permissions.has('Administrator')) {
+    const freeStock = await db.get('stock_free') || [];
+    const premiumStock = await db.get('stock_premium') || [];
+    const embed = new EmbedBuilder()
+      .setColor('#00BFFF')
+      .setTitle('Alt Generator')
+      .setDescription('Get your alts here!\n\n• **Free AltGen** → 24h cooldown\n• **AltGen Premium** → Premium role + 24h cooldown\n\nPremium? Buy via ticket!')
+      .setFooter({ text: 'Stock managed by DizzyHub' });
+    const row = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder().setCustomId('free_altgen').setLabel('Free AltGen').setStyle(ButtonStyle.Primary).setEmoji('🆓').setDisabled(freeStock.length === 0),
+        new ButtonBuilder().setCustomId('premium_altgen').setLabel('AltGen Premium').setStyle(ButtonStyle.Success).setEmoji('💎').setDisabled(premiumStock.length === 0)
+      );
+    await message.channel.send({ embeds: [embed], components: [row] });
+    await message.reply({ content: 'Generator panel posted!', ephemeral: true });
+  }
 });
 
 client.on('interactionCreate', async interaction => {
- if (!interaction.isButton()) return;
+  if (!interaction.isButton()) return;
 
- if (interaction.customId === 'create_ticket') {
- await interaction.deferReply({ ephemeral: true });
+  if (interaction.customId === 'create_ticket') {
+    await interaction.deferReply({ ephemeral: true });
 
- const guild = interaction.guild;
- const user = interaction.user;
+    const guild = interaction.guild;
+    const user = interaction.user;
 
- let ticket = guild.channels.cache.find(ch =>
- ch.name === ticket-${user.username.toLowerCase()} && ch.parentId === TICKET_CATEGORY_ID
- );
+    let ticket = guild.channels.cache.find(ch =>
+      ch.name === `ticket-${user.username.toLowerCase()}` && ch.parentId === TICKET_CATEGORY_ID
+    );
 
- if (ticket) {
- return interaction.editReply({ content: You already have a ticket: ${ticket} });
- }
+    if (ticket) {
+      return interaction.editReply({ content: `You already have a ticket: ${ticket}` });
+    }
 
- try {
- ticket = await guild.channels.create({
- name: ticket-${user.username.toLowerCase()},
- type: ChannelType.GuildText,
- parent: TICKET_CATEGORY_ID,
- permissionOverwrites: [
- { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
- { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
- { id: SELLER_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] }
- ],
- reason: Ticket created by ${user.tag}
- });
+    try {
+      ticket = await guild.channels.create({
+        name: `ticket-${user.username.toLowerCase()}`,
+        type: ChannelType.GuildText,
+        parent: TICKET_CATEGORY_ID,
+        permissionOverwrites: [
+          { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+          { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+          { id: SELLER_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] }
+        ],
+        reason: `Ticket created by ${user.tag}`
+      });
 
- const welcomeEmbed = new EmbedBuilder()
- .setColor('#00ff00')
- .setTitle(Purchase Ticket - ${user.username})
- .setDescription('A seller will help soon!\nTell us what you want to buy.');
+      const welcomeEmbed = new EmbedBuilder()
+        .setColor('#00ff00')
+        .setTitle(`Purchase Ticket - ${user.username}`)
+        .setDescription('A seller will help soon!\nTell us what you want to buy.');
 
- const closeRow = new ActionRowBuilder()
- .addComponents(
- new ButtonBuilder()
- .setCustomId('close_ticket')
- .setLabel('Close Ticket')
- .setStyle(ButtonStyle.Danger)
- .setEmoji('🔒')
- );
+      const closeRow = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('close_ticket')
+            .setLabel('Close Ticket')
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('🔒')
+        );
 
- await ticket.send({
- content: <@&${SELLER_ROLE_ID}> New ticket from ${user}!,
- embeds: [welcomeEmbed],
- components: [closeRow]
- });
+      await ticket.send({
+        content: `<@&${SELLER_ROLE_ID}> New ticket from ${user}!`,
+        embeds: [welcomeEmbed],
+        components: [closeRow]
+      });
 
- await interaction.editReply({ content: Ticket created: ${ticket} });
- } catch (error) {
- console.error('Ticket creation failed:', error.message);
- await interaction.editReply({ content: 'Failed to create ticket — check bot perms or contact admin.' });
- }
- }
+      await interaction.editReply({ content: `Ticket created: ${ticket}` });
+    } catch (error) {
+      console.error('Ticket creation failed:', error.message);
+      await interaction.editReply({ content: 'Failed to create ticket — check bot perms or contact admin.' });
+    }
+  }
 
- if (interaction.customId === 'close_ticket') {
- if (!interaction.member.roles.cache.has(SELLER_ROLE_ID)) {
- return interaction.reply({ content: 'Only sellers can close!', ephemeral: true });
- }
- await interaction.reply('Closing in 5 seconds...');
- setTimeout(() => interaction.channel.delete().catch(err => console.error('Delete failed:', err.message)), 5000);
- }
+  if (interaction.customId === 'close_ticket') {
+    if (!interaction.member.roles.cache.has(SELLER_ROLE_ID)) {
+      return interaction.reply({ content: 'Only sellers can close!', ephemeral: true });
+    }
+    await interaction.reply('Closing in 5 seconds...');
+    setTimeout(() => interaction.channel.delete().catch(err => console.error('Delete failed:', err.message)), 5000);
+  }
 
- let type = null;
- let label = '';
- if (interaction.customId === 'free_altgen') {
- type = 'free';
- label = 'Free AltGen';
- } else if (interaction.customId === 'premium_altgen') {
- type = 'premium';
- label = 'AltGen Premium';
- if (!interaction.member.roles.cache.has(PREMIUM_ROLE_ID)) {
- return interaction.reply({ content: '❌ Premium only! Open a ticket to buy.', ephemeral: true });
- }
- }
- if (type) {
- await interaction.deferReply({ ephemeral: true });
- const now = Date.now();
- const last = buttonCooldowns.get(interaction.user.id) || 0;
- if (now - last < GEN_BUTTON_COOLDOWN_MS) {
- const rem = GEN_BUTTON_COOLDOWN_MS - (now - last);
- return interaction.editReply({ content: ⏳ Wait ${Math.ceil(rem / 1000)}s (anti-spam) });
- }
- buttonCooldowns.set(interaction.user.id, now);
- setTimeout(() => buttonCooldowns.delete(interaction.user.id), GEN_BUTTON_COOLDOWN_MS);
- const lastUsed = await db.get(cooldown_${interaction.user.id}_${type});
- if (lastUsed && now - lastUsed < COOLDOWN_MS) {
- const rem = COOLDOWN_MS - (now - lastUsed);
- const h = Math.floor(rem / 3600000);
- const m = Math.floor((rem % 3600000) / 60000);
- return interaction.editReply({ content: ⏳ Cooldown: ~${h}h ${m}m left. });
- }
- const accounts = await db.get(stock_${type}) || [];
- if (accounts.length === 0) {
- return interaction.editReply({ content: '❌ Out of stock! Check later.' });
- }
- const account = accounts.shift();
- await db.set(stock_${type}, accounts);
- await db.set(cooldown_${interaction.user.id}_${type}, now);
- try {
- await interaction.user.send(**${label} Account:**\n\``\n  {account}\n\`\`\``);<br> await interaction.editReply({ content: 'Account sent to your DMs! Check spam if missing.' });<br> const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);<br> if (logChannel) {<br> logChannel.send(`**  {label} Generated**\nBy: $  {interaction.user.tag} (  ${interaction.user.id})\nTime: $  {new Date().toLocaleString()}\nAccount: ||  ${account}||\nRemaining ${type} stock:   {accounts.length}`);<br> }<br> } catch (err) {<br> await interaction.editReply({ content: 'Failed to DM you — enable DMs from server members.' });<br> accounts.unshift(account);<br> await db.set(`stock_  {type}`, accounts);
- }
- }
+  let type = null;
+  let label = '';
+  if (interaction.customId === 'free_altgen') {
+    type = 'free';
+    label = 'Free AltGen';
+  } else if (interaction.customId === 'premium_altgen') {
+    type = 'premium';
+    label = 'AltGen Premium';
+    if (!interaction.member.roles.cache.has(PREMIUM_ROLE_ID)) {
+      return interaction.reply({ content: '❌ Premium only! Open a ticket to buy.', ephemeral: true });
+    }
+  }
+  if (type) {
+    await interaction.deferReply({ ephemeral: true });
+    const now = Date.now();
+    const last = buttonCooldowns.get(interaction.user.id) || 0;
+    if (now - last < GEN_BUTTON_COOLDOWN_MS) {
+      const rem = GEN_BUTTON_COOLDOWN_MS - (now - last);
+      return interaction.editReply({ content: `⏳ Wait ${Math.ceil(rem / 1000)}s (anti-spam)` });
+    }
+    buttonCooldowns.set(interaction.user.id, now);
+    setTimeout(() => buttonCooldowns.delete(interaction.user.id), GEN_BUTTON_COOLDOWN_MS);
+    const lastUsed = await db.get(`cooldown_${interaction.user.id}_${type}`);
+    if (lastUsed && now - lastUsed < COOLDOWN_MS) {
+      const rem = COOLDOWN_MS - (now - lastUsed);
+      const h = Math.floor(rem / 3600000);
+      const m = Math.floor((rem % 3600000) / 60000);
+      return interaction.editReply({ content: `⏳ Cooldown: ~${h}h ${m}m left.` });
+    }
+    const accounts = await db.get(`stock_${type}`) || [];
+    if (accounts.length === 0) {
+      return interaction.editReply({ content: '❌ Out of stock! Check later.' });
+    }
+    const account = accounts.shift();
+    await db.set(`stock_${type}`, accounts);
+    await db.set(`cooldown_${interaction.user.id}_${type}`, now);
+    try {
+      await interaction.user.send(`**${label} Account:**\n\`\`\`\n${account}\n\`\`\``);
+      await interaction.editReply({ content: 'Account sent to your DMs! Check spam if missing.' });
+      const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+      if (logChannel) {
+        logChannel.send(`**${label} Generated**\nBy: ${interaction.user.tag} (${interaction.user.id})\nTime: ${new Date().toLocaleString()}\nAccount: ||${account}||\nRemaining ${type} stock: ${accounts.length}`);
+      }
+    } catch (err) {
+      await interaction.editReply({ content: 'Failed to DM you — enable DMs from server members.' });
+      accounts.unshift(account);
+      await db.set(`stock_${type}`, accounts);
+    }
+  }
+});
+// ======================
+// RENDER FREE TIER KEEP-ALIVE + FINAL LOGS
+// ======================
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('DizzyHub bot is alive 🟢');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Keep-alive web server running on port ${PORT}`);
 });
 
 client.login(process.env.TOKEN)
- .then wait 5-10 seconds:(proccess: bot should be online!)
+  .then(() => console.log('LOGIN SUCCESS - Bot should be online in 5-10 seconds'))
+  .catch(err => {
+    console.error('LOGIN CRASHED:', err.message || err);
+    console.error('Full error details:', err);
+  });
+
+client.on('error', err => console.error('CLIENT ERROR:', err.message || err));
+client.on('warn', warn => console.log('CLIENT WARNING:', warn));
+
 
