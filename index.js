@@ -138,7 +138,6 @@ We are NOT responsible for any issues. Download only from trusted sources.
 • **Seliware** - sUNC 100% / UNC 98% → [Link](https://robloxcheatz.com/product?id=51c9587f-4794-46ef-b6bf-2bd9f13c17d2&ref=weao)
 • **Volcano** - sUNC 97% / UNC 98% → [Link](https://gckeys.cc/product?slug=volcano-executor&ref=weao)
 • **Volt** - sUNC 100% / UNC 98% → [Link](https://bloxproducts.com/r/weao#Volt)
-• **Wave** - sUNC 100% / UNC 99% → [Link](https://bloxproducts.com/?affiliate_key=weao#Wave)
 • **Cryptic** - sUNC 94% / UNC 97% → [Link](https://bloxproducts.com/?affiliate_key=weao#Cryptic)
 
 **Free**
@@ -392,3 +391,4 @@ client.login(process.env.TOKEN)
 
 client.on('error', err => console.error('CLIENT ERROR:', err.message || err));
 client.on('warn', warn => console.log('CLIENT WARNING:', warn));
+
