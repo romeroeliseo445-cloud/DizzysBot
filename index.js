@@ -21,7 +21,7 @@ const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const buttonCooldowns = new Map();
 
 console.log('Bot starting...');
-console.log('TOKEN present in env:', !!process.env.TOKEN ? 'YES' : 'NO - MISSING TOKEN');
+console.log('TOKEN present in env:', !!process.env.TOKEN ? 'YES' :;
 
 client.once('ready', () => {
  console.log(LOGIN SUCCESS - Bot online as ${client.user.tag});
@@ -288,12 +288,5 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.login(process.env.TOKEN)
- .then(() => console.log('LOGIN SUCCESS - Bot should be online in 5-10 seconds'))
- .catch(err => {
- console.error('LOGIN CRASHED:', err.message || err);
- console.error('Full error details:', err);
- });
+ .then wait 5-10 seconds:(proccess: bot should be online!)
 
-client.on('error', err => console.error('CLIENT ERROR:', err.message || err));
-client.on('warn', warn => console.log('CLIENT WARNING:', warn));
-<br id="textarea-placeholder-break"></div>
