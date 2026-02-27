@@ -11,5 +11,5 @@
   "quick.db": "^9.1.7",
   "better-sqlite3": "^11.3.0",
   "node-fetch": "^2.7.0",
-  "express": "^4.19.2"   // <-- this line should be new
+  "express": "^4.19.2"
 }
