@@ -5,14 +5,11 @@
   "scripts": {
     "start": "node index.js"
   },
-  "dependencies": {
-    "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5",
-    "quick.db": "^9.1.7",
-    "better-sqlite3": "^11.3.0",
-    "node-fetch": "^2.7.0"
-  },
-  "engines": {
-    "node": "20.x"
-  }
+"dependencies": {
+  "discord.js": "^14.16.3",
+  "dotenv": "^16.4.5",
+  "quick.db": "^9.1.7",
+  "better-sqlite3": "^11.3.0",
+  "node-fetch": "^2.7.0",
+  "express": "^4.19.2"   // <-- this line should be new
 }
